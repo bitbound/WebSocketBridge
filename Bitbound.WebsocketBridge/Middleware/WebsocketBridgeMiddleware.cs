@@ -16,7 +16,7 @@ public class WebsocketBridgeMiddleware(
             return;
         }
 
-        if (!context.Request.Path.StartsWithSegments("/websocket-bridge"))
+        if (!context.Request.Path.StartsWithSegments("/bridge"))
         {
             await _next(context);
             return;
@@ -66,7 +66,7 @@ public class WebsocketBridgeMiddleware(
     private void SetBadRequest(HttpContext context, string message)
     {
         context.Response.StatusCode = StatusCodes.Status400BadRequest;
-        var body = $"{message}\n\nPath should be in the form of '/websocket-bridge/{{session-id (Guid)}}'.";
+        var body = $"{message}\n\nPath should be in the form of '/bridge/{{session-id (Guid)}}'.";
         context.Response.WriteAsync(body, _appLifetime.ApplicationStopping);
     }
 
