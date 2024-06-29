@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Bitbound.WebsocketBridge.Sessions;
 
-public interface IStreamingSessionStore
+public interface ISessionStore
 {
     int Count { get; }
 
@@ -18,7 +18,7 @@ public interface IStreamingSessionStore
     bool TryRemove(Guid sessionId, [NotNullWhen(true)] out SessionSignaler? signaler);
 }
 
-public class ProxyStreamStoreLocal : IStreamingSessionStore
+public class SessionStore : ISessionStore
 {
     private readonly ConcurrentDictionary<Guid, SessionSignaler> _signalers = new();
 

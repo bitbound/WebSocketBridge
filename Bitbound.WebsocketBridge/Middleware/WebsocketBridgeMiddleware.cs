@@ -5,7 +5,7 @@ namespace Bitbound.WebsocketBridge.Middleware;
 public class WebsocketBridgeMiddleware(
     RequestDelegate _next,
     IHostApplicationLifetime _appLifetime,
-    IStreamingSessionStore _streamStore,
+    ISessionStore _streamStore,
     ILogger<WebsocketBridgeMiddleware> _logger)
 {
     public async Task InvokeAsync(HttpContext context)

@@ -1,4 +1,8 @@
 name: $(date:yyyyMMdd)$(rev:.r)
+trigger:
+ branches:
+   include:
+     - main
 jobs:
   - job: Docker_Deploy
     displayName: Docker Build and Deploy
