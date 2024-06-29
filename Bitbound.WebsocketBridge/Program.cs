@@ -15,6 +15,11 @@ var app = builder.Build();
 
 var api = app.MapGroup("/api");
 api.MapGet("/status", () => Results.Ok(new StatusOkDto("Bridge is running!")));
-app.UseMiddleware<WebsocketBridgeMiddleware>();
+
+app.UseWhen(x => x.Request.Path.StartsWithSegments("/bridge"), x =>
+{
+    x.UseWebSockets();
+    x.UseMiddleware<WebsocketBridgeMiddleware>();
+});
 
 app.Run();
