@@ -2,11 +2,11 @@
 
 namespace Bitbound.WebsocketBridge.Middleware;
 
-public class WebsocketBridgeMiddleware(
+public class WebSocketBridgeMiddleware(
     RequestDelegate _next,
     IHostApplicationLifetime _appLifetime,
     ISessionStore _streamStore,
-    ILogger<WebsocketBridgeMiddleware> _logger)
+    ILogger<WebSocketBridgeMiddleware> _logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
