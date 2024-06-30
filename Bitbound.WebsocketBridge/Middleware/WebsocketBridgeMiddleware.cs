@@ -55,12 +55,22 @@ public class WebSocketBridgeMiddleware(
             return;
         }
 
-        await signaler.WaitForPartner(_appLifetime.ApplicationStopping);
-        _ = _streamStore.TryRemove(sessionId, out _);
+        try
+        {
+            await signaler.WaitForPartner(_appLifetime.ApplicationStopping);
+            _ = _streamStore.TryRemove(sessionId, out _);
 
-        var websocket = await context.WebSockets.AcceptWebSocketAsync();
-        await signaler.SetWebsocket(websocket, requestId, _appLifetime.ApplicationStopping);
-        await StreamToPartner(signaler, requestId);
+            var websocket = await context.WebSockets.AcceptWebSocketAsync();
+            await signaler.SetWebsocket(websocket, requestId, _appLifetime.ApplicationStopping);
+            await StreamToPartner(signaler, requestId);
+        }
+        catch (OperationCanceledException ex)
+        {
+            _logger.LogWarning(ex, "Timed out while waiting for partner to connect.");
+            context.Response.StatusCode = StatusCodes.Status408RequestTimeout;
+            await context.Response.WriteAsync("Timed out while waiting for partner.");
+            return;
+        }
     }
 
     private void SetBadRequest(HttpContext context, string message)
