@@ -23,7 +23,8 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Bitbound.WebsocketBridge.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=true
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0 AS final
-RUN apt -y install curl
+RUN apt-get -y update
+RUN apt-get -y install curl
 WORKDIR /app
 EXPOSE 8080
 COPY --from=publish /app/publish .
