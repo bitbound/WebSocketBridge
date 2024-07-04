@@ -10,7 +10,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     clang zlib1g-dev
-RUN apt -y install curl
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Bitbound.WebsocketBridge/Bitbound.WebsocketBridge.csproj", "Bitbound.WebsocketBridge/"]
@@ -24,6 +23,7 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Bitbound.WebsocketBridge.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=true
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0 AS final
+RUN apt -y install curl
 WORKDIR /app
 EXPOSE 8080
 COPY --from=publish /app/publish .
