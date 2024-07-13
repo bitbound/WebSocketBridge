@@ -5,6 +5,12 @@ using Microsoft.AspNetCore.WebSockets;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
+builder.Logging.AddSimpleConsole(options =>
+{
+    options.IncludeScopes = true;
+    options.TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff zzz ";
+});
+
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);

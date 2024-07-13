@@ -3,7 +3,7 @@
     "http": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/status",
+      "launchUrl": "api/health",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
@@ -13,7 +13,7 @@
     "Container (Dockerfile)": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/api/status",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/api/health",
       "environmentVariables": {
         "ASPNETCORE_HTTP_PORTS": "8080"
       },
