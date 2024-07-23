@@ -1,6 +1,6 @@
-﻿namespace Bitbound.WebsocketBridge.Helpers;
+﻿namespace Bitbound.WebSocketBridge.Common.Helpers;
 
-public static class DisposeHelper
+internal static class DisposeHelper
 {
     public static void DisposeAll(params IDisposable?[] disposables)
     {

@@ -1,10 +1,11 @@
 ﻿using System.Collections.Concurrent;
 using System.Net.WebSockets;
 
-namespace Bitbound.WebsocketBridge.Sessions;
+namespace Bitbound.WebSocketBridge.Common.Sessions;
 
-public class SessionSignaler : IAsyncDisposable
+internal class SessionSignaler : IAsyncDisposable
 {
+    private readonly string _accessToken;
     private readonly Guid _creatorRequestId;
     private readonly ConcurrentQueue<TaskCompletionSource> _signalQueue = new();
     private readonly Task[] _signalTasks;
@@ -14,9 +15,10 @@ public class SessionSignaler : IAsyncDisposable
     private WebSocket? _websocket1;
     private WebSocket? _websocket2;
 
-    public SessionSignaler(Guid requestId)
+    public SessionSignaler(Guid requestId, string accessToken)
     {
         _creatorRequestId = requestId;
+        _accessToken = accessToken;
         _signalQueue.Enqueue(new TaskCompletionSource());
         _signalQueue.Enqueue(new TaskCompletionSource());
         _signalTasks = _signalQueue.Select(x => x.Task).ToArray();
@@ -138,6 +140,11 @@ public class SessionSignaler : IAsyncDisposable
         }
 
         return tcs.TrySetResult();
+    }
+
+    public bool ValidateToken(string accessToken)
+    {
+        return accessToken == _accessToken;
     }
 
     public async Task WaitForPartner(CancellationToken cancellationToken)

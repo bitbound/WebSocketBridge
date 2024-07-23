@@ -1,10 +1,10 @@
-﻿using Bitbound.WebsocketBridge.Dtos;
+﻿using Bitbound.WebSocketBridge.Dtos;
 using System.Text.Json.Serialization;
 
-namespace Bitbound.WebsocketBridge.Serialization;
+namespace Bitbound.WebSocketBridge.Serialization;
 
 [JsonSerializable(typeof(StatusOkDto))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext
+public partial class AppJsonSerializerContext : JsonSerializerContext
 {
 
 }

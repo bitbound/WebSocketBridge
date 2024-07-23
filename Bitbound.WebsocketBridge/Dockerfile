@@ -12,15 +12,15 @@ RUN apt-get update \
     clang zlib1g-dev
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Bitbound.WebsocketBridge/Bitbound.WebsocketBridge.csproj", "Bitbound.WebsocketBridge/"]
-RUN dotnet restore "./Bitbound.WebsocketBridge/Bitbound.WebsocketBridge.csproj"
+COPY ["Bitbound.WebSocketBridge/Bitbound.WebSocketBridge.csproj", "Bitbound.WebSocketBridge/"]
+RUN dotnet restore "./Bitbound.WebSocketBridge/Bitbound.WebSocketBridge.csproj"
 COPY . .
-WORKDIR "/src/Bitbound.WebsocketBridge"
-RUN dotnet build "./Bitbound.WebsocketBridge.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/Bitbound.WebSocketBridge"
+RUN dotnet build "./Bitbound.WebSocketBridge.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Bitbound.WebsocketBridge.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=true
+RUN dotnet publish "./Bitbound.WebSocketBridge.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=true
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0 AS final
 RUN apt-get -y update
@@ -28,7 +28,7 @@ RUN apt-get -y install curl
 WORKDIR /app
 EXPOSE 8080
 COPY --from=publish /app/publish .
-ENTRYPOINT ["./Bitbound.WebsocketBridge"]
+ENTRYPOINT ["./Bitbound.WebSocketBridge"]
 
 HEALTHCHECK \
   CMD curl -f http://localhost:8080/api/health || exit 1

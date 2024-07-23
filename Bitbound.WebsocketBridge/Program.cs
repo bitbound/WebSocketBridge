@@ -1,7 +1,5 @@
-using Bitbound.WebsocketBridge.Dtos;
-using Bitbound.WebsocketBridge.Serialization;
-using Microsoft.AspNetCore.Routing.Patterns;
-using Microsoft.AspNetCore.WebSockets;
+using Bitbound.WebSocketBridge.Common.Extensions;
+using Bitbound.WebSocketBridge.Serialization;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -16,18 +14,14 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
 });
 
-builder.Services.AddWebSockets(_ => { });
-builder.Services.AddHealthChecks();
-builder.Services.AddSingleton<ISessionStore, SessionStore>();
-var app = builder.Build();
+builder.Services.AddWebSocketBridge();
 
+builder.Services.AddHealthChecks();
+
+var app = builder.Build();
 var api = app.MapGroup("/api");
 api.MapHealthChecks("/health");
 
-app.UseWhen(x => x.Request.Path.StartsWithSegments("/bridge"), x =>
-{
-    x.UseWebSockets();
-    x.UseMiddleware<WebSocketBridgeMiddleware>();
-});
+app.MapWebSocketBridge("/bridge");
 
 app.Run();

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Bitbound.WebsocketBridge.Sessions;
+namespace Bitbound.WebSocketBridge.Common.Sessions;
 
-public interface ISessionStore
+internal interface ISessionStore
 {
     int Count { get; }
 
@@ -18,7 +18,7 @@ public interface ISessionStore
     bool TryRemove(Guid sessionId, [NotNullWhen(true)] out SessionSignaler? signaler);
 }
 
-public class SessionStore : ISessionStore
+internal class SessionStore : ISessionStore
 {
     private readonly ConcurrentDictionary<Guid, SessionSignaler> _signalers = new();
 

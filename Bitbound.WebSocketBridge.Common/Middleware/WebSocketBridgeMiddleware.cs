@@ -1,8 +1,11 @@
-﻿using System.Net.WebSockets;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System.Net.WebSockets;
 
-namespace Bitbound.WebsocketBridge.Middleware;
+namespace Bitbound.WebSocketBridge.Common.Middleware;
 
-public class WebSocketBridgeMiddleware(
+internal class WebSocketBridgeMiddleware(
     RequestDelegate _next,
     IHostApplicationLifetime _appLifetime,
     ISessionStore _streamStore,
@@ -16,12 +19,6 @@ public class WebSocketBridgeMiddleware(
             return;
         }
 
-        if (!context.Request.Path.StartsWithSegments("/bridge"))
-        {
-            await _next(context);
-            return;
-        }
-
         if (string.IsNullOrWhiteSpace(context.Request.Path.Value))
         {
             SetBadRequest(context, "Path cannot be empty.");
@@ -30,14 +27,14 @@ public class WebSocketBridgeMiddleware(
 
         var parts = context.Request.Path.Value.Split("/", StringSplitOptions.RemoveEmptyEntries);
 
-        if (parts.Length != 2)
+        if (parts.Length < 3)
         {
-            SetBadRequest(context, "Path should have 2 parts.");
+            SetBadRequest(context, "Path should have at least 3 parts.");
             return;
         }
 
-
-        var sessionParam = parts[1];
+        var sessionParam = parts[^2];
+        var accessToken = parts[^1];
 
         if (!Guid.TryParse(sessionParam, out var sessionId))
         {
@@ -46,7 +43,15 @@ public class WebSocketBridgeMiddleware(
         }
 
         var requestId = Guid.NewGuid();
-        await using var signaler = _streamStore.GetOrAdd(sessionId, id => new SessionSignaler(requestId));
+        await using var signaler = _streamStore.GetOrAdd(sessionId, id => new SessionSignaler(requestId, accessToken));
+
+        if (!signaler.ValidateToken(accessToken))
+        {
+            _logger.LogError("Invalid access token.  Session ID: {SessionId}", sessionId);
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.CompleteAsync();
+            return;
+        }
 
         if (!signaler.SignalReady())
         {
