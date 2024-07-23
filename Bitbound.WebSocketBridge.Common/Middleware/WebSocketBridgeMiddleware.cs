@@ -80,6 +80,7 @@ internal class WebSocketBridgeMiddleware(
 
     private void SetBadRequest(HttpContext context, string message)
     {
+        _logger.LogWarning("Bad request.  Path: {RequestPath}", context.Request.Path);
         context.Response.StatusCode = StatusCodes.Status400BadRequest;
         var body = $"{message}\n\nPath should be in the form of '/bridge/{{session-id (Guid)}}'.";
         context.Response.WriteAsync(body, _appLifetime.ApplicationStopping);
