@@ -12,6 +12,7 @@ RUN apt-get update \
     clang zlib1g-dev
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["README.md", "/"]
 COPY ["Bitbound.WebSocketBridge/Bitbound.WebSocketBridge.csproj", "Bitbound.WebSocketBridge/"]
 COPY ["Bitbound.WebSocketBridge.Common/Bitbound.WebSocketBridge.Common.csproj", "Bitbound.WebSocketBridge.Common/"]
 RUN dotnet restore "./Bitbound.WebSocketBridge/Bitbound.WebSocketBridge.csproj"
