@@ -13,6 +13,7 @@ RUN apt-get update \
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Bitbound.WebSocketBridge/Bitbound.WebSocketBridge.csproj", "Bitbound.WebSocketBridge/"]
+COPY ["Bitbound.WebSocketBridge.Common/Bitbound.WebSocketBridge.Common.csproj", "Bitbound.WebSocketBridge.Common/"]
 RUN dotnet restore "./Bitbound.WebSocketBridge/Bitbound.WebSocketBridge.csproj"
 COPY . .
 WORKDIR "/src/Bitbound.WebSocketBridge"
