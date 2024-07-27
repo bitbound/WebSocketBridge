@@ -1,4 +1,4 @@
-name: $(date:yyyyMMdd)$(rev:.r)
+name: 1.0.$(Rev:r)
 trigger:
  branches:
    include:
@@ -11,6 +11,24 @@ jobs:
     steps:
       - checkout: self
         fetchDepth: 1
+        clean: true
+    
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: 'build'
+          arguments: '--configuration Release -p:Version="$(Build.BuildNumber)"'
+          projects: '**/*.csproj'
+          
+      - task: NuGetAuthenticate@1
+        inputs:
+          nuGetServiceConnections: 'NuGet.org'
+      
+      - task: NuGetCommand@2
+        inputs:
+          command: 'push'
+          packagesToPush: './Bitbound.WebSocketBridge.Common/bin/Release/**/*.nupkg;!./Bitbound.WebSocketBridge.Common/bin/Release/**/*.symbols.nupkg'
+          nuGetFeedType: 'external'
+          publishFeedCredentials: 'NuGet.org'
 
       - task: Docker@2
         displayName: Build and Push Docker
