@@ -18,10 +18,6 @@ jobs:
           command: 'build'
           arguments: '--configuration Release -p:Version="$(Build.BuildNumber)"'
           projects: '**/*.csproj'
-          
-      - task: NuGetAuthenticate@1
-        inputs:
-          nuGetServiceConnections: 'NuGet.org'
       
       - task: NuGetCommand@2
         inputs:
