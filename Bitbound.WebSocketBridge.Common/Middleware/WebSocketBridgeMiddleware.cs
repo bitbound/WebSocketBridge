@@ -93,6 +93,8 @@ internal class WebSocketBridgeMiddleware(
             ArgumentNullException.ThrowIfNull(signaler.Websocket1);
             ArgumentNullException.ThrowIfNull(signaler.Websocket2);
 
+            _logger.LogInformation("Starting stream bridge.  Request ID: {RequestId}", callerRequestId);
+
             var partnerWebsocket = signaler.GetPartnerWebsocket(callerRequestId);
             var callerWebsocket = signaler.GetCallerWebsocket(callerRequestId);
 
@@ -123,6 +125,10 @@ internal class WebSocketBridgeMiddleware(
                     true,
                     _appLifetime.ApplicationStopping);
             }
+        }
+        catch (OperationCanceledException)
+        { 
+            _logger.LogInformation("Application shutting down.  Streaming aborted.");
         }
         catch (WebSocketException ex) when (ex.WebSocketErrorCode is WebSocketError.InvalidState or WebSocketError.ConnectionClosedPrematurely)
         {
