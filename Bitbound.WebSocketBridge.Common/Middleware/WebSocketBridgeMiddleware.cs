@@ -118,7 +118,7 @@ internal class WebSocketBridgeMiddleware(
             ArgumentNullException.ThrowIfNull(signaler.Websocket1);
             ArgumentNullException.ThrowIfNull(signaler.Websocket2);
 
-            _logger.LogInformation("Starting stream bridge.  Request ID: {RequestId}", callerRequestId);
+            _logger.LogInformation("Starting stream bridge. Request ID: {RequestId}", callerRequestId);
 
             var partnerWebsocket = signaler.GetPartnerWebsocket(callerRequestId);
             var callerWebsocket = signaler.GetCallerWebsocket(callerRequestId);
@@ -146,22 +146,23 @@ internal class WebSocketBridgeMiddleware(
 
                 await partnerWebsocket.SendAsync(
                     bufferMemory[..result.Count],
-                    WebSocketMessageType.Binary,
-                    true,
+                    result.MessageType,
+                    result.EndOfMessage,
                     _appLifetime.ApplicationStopping);
             }
         }
         catch (OperationCanceledException)
-        { 
-            _logger.LogInformation("Application shutting down.  Streaming aborted.");
+        {
+            _logger.LogInformation("Application shutting down. Streaming aborted.");
         }
         catch (WebSocketException ex) when (ex.WebSocketErrorCode is WebSocketError.InvalidState or WebSocketError.ConnectionClosedPrematurely)
         {
-            _logger.LogInformation("Streamer websocket closed.  Ending stream.");
+            _logger.LogInformation("Streamer websocket closed. Ending stream.");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while proxying viewer websocket.");
         }
     }
+
 }
