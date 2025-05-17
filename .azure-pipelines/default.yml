@@ -44,7 +44,6 @@ jobs:
           packagesToPush: '$(Pipeline.Workspace)/BuildOutput/Bitbound.WebSocketBridge.Common/bin/Release/**/*.nupkg;!$(Pipeline.Workspace)/BuildOutput/Bitbound.WebSocketBridge.Common/bin/Release/**/*.symbols.nupkg'
           nuGetFeedType: 'external'
           publishFeedCredentials: 'NuGet'
-
   - job: Publish_Docker
     displayName: Build and Push Docker Image
     dependsOn: Build
@@ -60,6 +59,6 @@ jobs:
           containerRegistry: 843c64d8-bb79-4b00-8a18-f721cb8c9318
           repository: translucency/websocket-bridge
           buildContext: $(Pipeline.Workspace)/BuildOutput
-          tags: >-
+          tags: |
             $(Build.BuildId)
             latest
