@@ -33,10 +33,12 @@ jobs:
     dependsOn: Build
     pool:
       name: Default
+    workspace:
+      clean: true
     steps:
       - download: current
         artifact: BuildOutput
-        
+
       - task: NuGetCommand@2
         displayName: Push NuGet Package
         inputs:
@@ -44,11 +46,14 @@ jobs:
           packagesToPush: '$(Pipeline.Workspace)/BuildOutput/Bitbound.WebSocketBridge.Common/bin/Release/**/*.nupkg;!$(Pipeline.Workspace)/BuildOutput/Bitbound.WebSocketBridge.Common/bin/Release/**/*.symbols.nupkg'
           nuGetFeedType: 'external'
           publishFeedCredentials: 'NuGet'
+
   - job: Publish_Docker
     displayName: Build and Push Docker Image
     dependsOn: Build
     pool:
       name: Default
+    workspace:
+      clean: true
     steps:
       - download: current
         artifact: BuildOutput
