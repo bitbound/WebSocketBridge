@@ -27,7 +27,7 @@ jobs:
           targetPath: $(System.DefaultWorkingDirectory)
           artifact: BuildOutput
           publishLocation: pipeline
-
+          
   - job: Publish_NuGet
     displayName: Publish NuGet Package
     dependsOn: Build
@@ -36,6 +36,13 @@ jobs:
     workspace:
       clean: true
     steps:
+      - task: DeleteFiles@1
+        displayName: 'Clean Previous BuildOutput'
+        inputs:
+          SourceFolder: '$(Pipeline.Workspace)/BuildOutput'
+          Contents: '**/*'
+          RemoveSourceFolder: true
+          
       - download: current
         artifact: BuildOutput
 
@@ -55,6 +62,13 @@ jobs:
     workspace:
       clean: true
     steps:
+      - task: DeleteFiles@1
+        displayName: 'Clean Previous BuildOutput'
+        inputs:
+          SourceFolder: '$(Pipeline.Workspace)/BuildOutput'
+          Contents: '**/*'
+          RemoveSourceFolder: true
+          
       - download: current
         artifact: BuildOutput
         
