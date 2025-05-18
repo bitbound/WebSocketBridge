@@ -1,11 +1,12 @@
-name: 1.1.$(Rev:r)
+# filepath: WebSocketBridge.yml
+name: 1.2.$(Rev:r)
 trigger:
  branches:
    include:
      - main
 jobs:
-  - job: Docker_Deploy
-    displayName: Docker Build and Deploy
+  - job: Build
+    displayName: Build Solution
     pool:
       name: Default
     steps:
@@ -14,25 +15,69 @@ jobs:
         clean: true
     
       - task: DotNetCoreCLI@2
+        displayName: Build Projects
         inputs:
           command: 'build'
           arguments: '--configuration Release -p:Version="$(Build.BuildNumber)"'
           projects: '**/*.csproj'
       
+      - task: PublishPipelineArtifact@1
+        displayName: Publish Build Artifacts
+        inputs:
+          targetPath: $(System.DefaultWorkingDirectory)
+          artifact: BuildOutput
+          publishLocation: pipeline
+          
+  - job: Publish_NuGet
+    displayName: Publish NuGet Package
+    dependsOn: Build
+    pool:
+      name: Default
+    workspace:
+      clean: true
+    steps:
+      - task: DeleteFiles@1
+        displayName: 'Clean Previous BuildOutput'
+        inputs:
+          SourceFolder: '$(Pipeline.Workspace)/BuildOutput'
+          Contents: '**/*'
+          RemoveSourceFolder: true
+          
+      - download: current
+        artifact: BuildOutput
+
       - task: NuGetCommand@2
+        displayName: Push NuGet Package
         inputs:
           command: 'push'
-          packagesToPush: './Bitbound.WebSocketBridge.Common/bin/Release/**/*.nupkg;!./Bitbound.WebSocketBridge.Common/bin/Release/**/*.symbols.nupkg'
+          packagesToPush: '$(Pipeline.Workspace)/BuildOutput/Bitbound.WebSocketBridge.Common/bin/Release/**/*.nupkg;!$(Pipeline.Workspace)/BuildOutput/Bitbound.WebSocketBridge.Common/bin/Release/**/*.symbols.nupkg'
           nuGetFeedType: 'external'
-          publishFeedCredentials: 'NuGet.org'
+          publishFeedCredentials: 'NuGet'
 
+  - job: Publish_Docker
+    displayName: Build and Push Docker Image
+    dependsOn: Build
+    pool:
+      name: Default
+    workspace:
+      clean: true
+    steps:
+      - task: DeleteFiles@1
+        displayName: 'Clean Previous BuildOutput'
+        inputs:
+          SourceFolder: '$(Pipeline.Workspace)/BuildOutput'
+          Contents: '**/*'
+          RemoveSourceFolder: true
+          
+      - download: current
+        artifact: BuildOutput
+        
       - task: Docker@2
         displayName: Build and Push Docker
         inputs:
-          containerRegistry: 428e5669-4949-4ad6-9e37-730f15b2cad8
+          containerRegistry: 843c64d8-bb79-4b00-8a18-f721cb8c9318
           repository: translucency/websocket-bridge
-          buildContext: $(System.DefaultWorkingDirectory)
-          tags: >-
+          buildContext: $(Pipeline.Workspace)/BuildOutput
+          tags: |
             $(Build.BuildId)
-
             latest
