@@ -23,6 +23,9 @@ jobs:
   build_and_deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
       - name: Show Inputs
