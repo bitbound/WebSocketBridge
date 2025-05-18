@@ -45,6 +45,11 @@ jobs:
           echo "version=$version" >> $env:GITHUB_OUTPUT
           echo "Version: $version"
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "9.0.x"
+
       - name: Build project
         run: |
           dotnet build --configuration Release -p:Version="${{ steps.set_version.outputs.version }}" Bitbound.WebSocketBridge/Bitbound.WebSocketBridge.csproj
