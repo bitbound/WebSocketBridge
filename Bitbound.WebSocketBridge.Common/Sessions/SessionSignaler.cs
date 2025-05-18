@@ -149,8 +149,6 @@ internal class SessionSignaler : IAsyncDisposable
 
     public async Task WaitForPartner(CancellationToken cancellationToken)
     {
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken);
-        await Task.WhenAll(_signalTasks).WaitAsync(linkedCts.Token);
+        await Task.WhenAll(_signalTasks).WaitAsync(cancellationToken);
     }
 }

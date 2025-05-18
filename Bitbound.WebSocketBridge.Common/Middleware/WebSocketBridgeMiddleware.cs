@@ -42,6 +42,24 @@ internal class WebSocketBridgeMiddleware(
             return;
         }
 
+        var waitForPartnerTimeout = TimeSpan.FromSeconds(10);
+
+        if (context.Request.Query.TryGetValue("timeout", out var timeoutValue) &&
+            int.TryParse(timeoutValue, out var timeoutSeconds))
+        {
+            if (timeoutSeconds < 0)
+            {
+                SetBadRequest(context, "Timeout cannot be negative.");
+                return;
+            }
+
+            waitForPartnerTimeout = timeoutSeconds switch
+            {
+                0 => Timeout.InfiniteTimeSpan,
+                _ => TimeSpan.FromSeconds(timeoutSeconds),
+            };
+        }
+
         var requestId = Guid.NewGuid();
         await using var signaler = _streamStore.GetOrAdd(sessionId, id => new SessionSignaler(requestId, accessToken));
 
@@ -62,7 +80,10 @@ internal class WebSocketBridgeMiddleware(
 
         try
         {
-            await signaler.WaitForPartner(_appLifetime.ApplicationStopping);
+            using var cts = new CancellationTokenSource(waitForPartnerTimeout);
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, _appLifetime.ApplicationStopping);
+
+            await signaler.WaitForPartner(linkedCts.Token);
             _ = _streamStore.TryRemove(sessionId, out _);
 
             var websocket = await context.WebSockets.AcceptWebSocketAsync();
@@ -75,6 +96,10 @@ internal class WebSocketBridgeMiddleware(
             context.Response.StatusCode = StatusCodes.Status408RequestTimeout;
             await context.Response.WriteAsync("Timed out while waiting for partner.");
             return;
+        }
+        finally
+        {
+            _ = _streamStore.TryRemove(sessionId, out _);
         }
     }
 
@@ -93,7 +118,7 @@ internal class WebSocketBridgeMiddleware(
             ArgumentNullException.ThrowIfNull(signaler.Websocket1);
             ArgumentNullException.ThrowIfNull(signaler.Websocket2);
 
-            _logger.LogInformation("Starting stream bridge.  Request ID: {RequestId}", callerRequestId);
+            _logger.LogInformation("Starting stream bridge. Request ID: {RequestId}", callerRequestId);
 
             var partnerWebsocket = signaler.GetPartnerWebsocket(callerRequestId);
             var callerWebsocket = signaler.GetCallerWebsocket(callerRequestId);
@@ -121,22 +146,23 @@ internal class WebSocketBridgeMiddleware(
 
                 await partnerWebsocket.SendAsync(
                     bufferMemory[..result.Count],
-                    WebSocketMessageType.Binary,
-                    true,
+                    result.MessageType,
+                    result.EndOfMessage,
                     _appLifetime.ApplicationStopping);
             }
         }
         catch (OperationCanceledException)
-        { 
-            _logger.LogInformation("Application shutting down.  Streaming aborted.");
+        {
+            _logger.LogInformation("Application shutting down. Streaming aborted.");
         }
         catch (WebSocketException ex) when (ex.WebSocketErrorCode is WebSocketError.InvalidState or WebSocketError.ConnectionClosedPrematurely)
         {
-            _logger.LogInformation("Streamer websocket closed.  Ending stream.");
+            _logger.LogInformation("Streamer websocket closed. Ending stream.");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while proxying viewer websocket.");
         }
     }
+
 }
