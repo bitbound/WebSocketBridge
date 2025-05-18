@@ -77,4 +77,4 @@ jobs:
           push: true
           tags: |
             translucency/websocket-bridge:${{ steps.set_version.outputs.version }}
-            translucency/websocket-bridge:${{ github.event.inputs.docker_tag }}
+            translucency/websocket-bridge:${{ github.event.inputs.docker_tag || 'preview' }}
