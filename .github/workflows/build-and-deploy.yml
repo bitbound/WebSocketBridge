@@ -22,7 +22,6 @@ env:
 jobs:
   build_and_deploy:
     name: Build and Deploy
-    runs-on: self-hosted
 
     steps:
       - name: Show Inputs
@@ -68,5 +67,5 @@ jobs:
           file: Bitbound.WebSocketBridge/Dockerfile
           push: true
           tags: |
-            ${{ steps.set_version.outputs.version }}
-            ${{ github.event.inputs.docker_tag }}
+            translucency/websocket-bridge:${{ steps.set_version.outputs.version }}
+            translucency/websocket-bridge:${{ github.event.inputs.docker_tag }}
