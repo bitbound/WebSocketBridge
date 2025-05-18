@@ -42,6 +42,12 @@ jobs:
         run: |
           dotnet build --configuration Release -p:Version="${{ steps.set_version.outputs.version }}" Bitbound.WebSocketBridge/Bitbound.WebSocketBridge.csproj
 
+      # Add NuGet publishing step
+      - name: Publish NuGet package
+        if: github.ref == 'refs/heads/main'
+        run: |
+          dotnet nuget push ./Bitbound.WebSocketBridge.Common/bin/Release/*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_KEY }} --source https://api.nuget.org/v3/index.json
+
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
