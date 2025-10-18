@@ -12,7 +12,6 @@
 		<PackageIcon>bitbound.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/bitbound/WebSocketBridge</RepositoryUrl>
-		<Version>1.0.0</Version>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 	<ItemGroup>
