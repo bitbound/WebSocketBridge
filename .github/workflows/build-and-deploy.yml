@@ -17,7 +17,7 @@ on:
 
 env:
   MAJOR_VERSION: 1
-  MINOR_VERSION: 3
+  MINOR_VERSION: 4
 
 jobs:
   build_and_deploy:
