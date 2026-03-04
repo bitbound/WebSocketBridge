@@ -17,7 +17,7 @@ COPY ["Bitbound.WebSocketBridge.Common/Bitbound.WebSocketBridge.Common.csproj", 
 RUN dotnet restore "./Bitbound.WebSocketBridge/Bitbound.WebSocketBridge.csproj"
 COPY . .
 WORKDIR "/src/Bitbound.WebSocketBridge"
-RUN dotnet build "./Bitbound.WebSocketBridge.csproj" -c $BUILD_CONFIGURATION -p:GeneratePackageOnBuild=false -o /app/build
+RUN dotnet build "./Bitbound.WebSocketBridge.csproj" -c $BUILD_CONFIGURATION -f net10.0 -p:GeneratePackageOnBuild=false -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
