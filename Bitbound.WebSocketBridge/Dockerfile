@@ -21,7 +21,7 @@ RUN dotnet build "./Bitbound.WebSocketBridge.csproj" -c $BUILD_CONFIGURATION -p:
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Bitbound.WebSocketBridge.csproj" -c $BUILD_CONFIGURATION -p:GeneratePackageOnBuild=false -o /app/publish /p:UseAppHost=true
+RUN dotnet publish "./Bitbound.WebSocketBridge.csproj" -c $BUILD_CONFIGURATION -f net10.0 -p:GeneratePackageOnBuild=false -o /app/publish /p:UseAppHost=true
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:10.0 AS final
 RUN apt-get -y update
